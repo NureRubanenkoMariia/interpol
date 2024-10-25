@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Home page
+{% endblock %}
+
+{% block body %}
+<div class="container text-center">
+    <h1 class="my-4">Welcome to Interpol</h1>
+
+    <div class="card mb-4" style="max-width: 800px; margin: auto;">
+        <img src="{{ url_for('static', filename='images/interpol.png') }}" class="card-img-top img-fluid" alt="Interpol Image" style="border-radius: 15px; max-height: 500px; object-fit: cover;">
+        <div class="card-body">
+            <h5 class="card-title">Interpol</h5>
+            <p class="card-text">
+                Interpol (International Criminal Police Organization) is an international organization that facilitates cooperation between police forces from different countries to combat crime.
+            </p>
+            <a href="#" class="btn btn-primary">Learn More</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<style>
+  body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+</style>

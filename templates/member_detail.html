@@ -1,0 +1,87 @@
+
+
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ member.first_name }} {{ member.last_name }}
+{% endblock %}
+
+{% block body %}
+
+<div class="container mt-5">
+    <h1 class="text-center text-primary">{{ member.first_name }} {{ member.last_name }}</h1>
+
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-light">
+                <tr>
+                    <th>Field</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Alias</td>
+                    <td>{{ member.alias }}</td>
+                </tr>
+                <tr>
+                    <td>Date of Birth</td>
+                    <td>{{ member.date_of_birth }}</td>
+                </tr>
+                <tr>
+                    <td>Sex</td>
+                    <td>{{ member.sex }}</td>
+                </tr>
+                <tr>
+                    <td>Age</td>
+                    <td>{{ member.age }}</td>
+                </tr>
+                <tr>
+                    <td>Threat Level</td>
+                    <td>{{ member.threat_level }}</td>
+                </tr>
+                <tr>
+                    <td>Gang</td>
+                    <td>{{ member.gang.gang_name if member.gang else 'No Gang' }}</td>
+                </tr>
+                <tr>
+                    <td>Country</td>
+                    <td>{{ member.country.country_name if member.country else 'No Country' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+        <button type="button" id="deleteBtn" class="btn btn-danger">Delete</button>
+        <a href="/member/update/{{member.member_id}}" class="btn btn-success"> Update</a>
+</div>
+
+
+
+
+
+
+
+  <script>
+document.getElementById('deleteBtn').addEventListener('click', function(event) {
+    fetch('/member/delete/{{member.member_id}}', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '/members';
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+</script>
+
+{%endblock%}

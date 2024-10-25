@@ -1,0 +1,240 @@
+{%extends 'base.html'%}
+
+{% block title %}
+Add member
+{%endblock%}
+
+{% block body %}
+
+<div class="container mt-5">
+
+
+<h1>Add Member</h1>
+
+<form id="memberForm">
+    <div class="form-group row">
+        <label for="first_name" class="col-sm-1 col-form-label">First Name</label>
+        <div class="col-sm-9">
+            <input type="text" name="first_name" id="first_name" class="form-control" placeholder="First Name" required>
+        </div>
+    </div> <br>
+
+    <div class="form-group row">
+        <label for="last_name" class="col-sm-1 col-form-label">Last Name</label>
+        <div class="col-sm-9">
+            <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Last Name" required>
+        </div>
+    </div> <br>
+
+    <div class="form-group row">
+        <label for="alias" class="col-sm-1 col-form-label">Alias</label>
+        <div class="col-sm-9">
+            <input type="text" name="alias" id="alias" class="form-control" placeholder="Alias">
+        </div>
+    </div> <br>
+
+    <div class="form-group row">
+        <label for="date_of_birth" class="col-sm-1 col-form-label">Date of Birth</label>
+        <div class="col-sm-9">
+            <input type="date" name="date_of_birth" id="date_of_birth" class="form-control">
+        </div>
+    </div> <br>
+
+    <div class="form-group row">
+        <label for="sex" class="col-sm-1 col-form-label">Sex</label>
+        <div class="col-sm-9">
+            <select name="sex" id="sex" class="form-control" required>
+                <option value="" disabled selected>Select Sex</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+        </div>
+    </div> <br>
+
+    <div class="form-group row">
+        <label for="threat_level" class="col-sm-1 col-form-label">Threat Level</label>
+        <div class="col-sm-9">
+            <input type="number" name="threat_level" id="threat_level" class="form-control" placeholder="Threat Level" required>
+        </div>
+    </div> <br>
+
+
+<div class="form-group row">
+  <label for="gang_id" class="col-sm-1 col-form-label">Gang</label>
+  <div class="col-sm-8">
+    <select name="gang_id" id="gang_id" class="form-control" required>
+      <option value="" disabled selected>Select Gang</option>
+      {% for gang in gangs %}
+        <option value="{{ gang.gang_id }}">{{ gang.gang_name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-1">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addGangModal">+</button>
+  </div>
+</div> <br>
+
+
+<div class="form-group row">
+  <label for="country_id" class="col-sm-1 col-form-label">Country</label>
+  <div class="col-sm-8">
+    <select name="country_id" id="country_id" class="form-control" required>
+      <option value="" disabled selected>Select Country</option>
+      {% for country in countries %}
+        <option value="{{ country.country_id }}">{{ country.country_name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-1">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCountryModal">+</button>
+  </div>
+</div> <br>
+
+{#<button type="button" class="btn btn-success" id="submitBtn">Create</button>#}
+
+
+<div class="modal fade" id="addGangModal" tabindex="-1" role="dialog" aria-labelledby="addGangModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addGangModalLabel">Add New Gang</h5>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="newGangName" class="form-control" placeholder="Enter Gang Name">
+          <textarea id="newGangDescription" class="form-control" placeholder="Enter Gang Description" rows="3" required></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveGangBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="addCountryModal" tabindex="-1" role="dialog" aria-labelledby="addCountryModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addCountryModalLabel">Add New Country</h5>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="newCountryName" class="form-control" placeholder="Enter Country Name">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveCountryBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <button type="button" class="btn btn-success" id="submitBtn">Create</button>
+</form>
+
+</div>
+
+
+
+<script>
+  document.getElementById('submitBtn').addEventListener('click', function() {
+    const firstName = document.getElementById('first_name').value;
+    const lastName = document.getElementById('last_name').value;
+    const alias = document.getElementById('alias').value;
+    const dateOfBirth = document.getElementById('date_of_birth').value;
+    const sex = document.getElementById('sex').value;
+    const threatLevel = document.getElementById('threat_level').value;
+    const gangId = document.getElementById('gang_id').value;
+    const countryId = document.getElementById('country_id').value;
+
+    fetch('/create_member', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        first_name: firstName,
+        last_name: lastName,
+        alias: alias,
+        date_of_birth: dateOfBirth,
+        sex: sex,
+        threat_level: threatLevel,
+        gang_id: gangId,
+        country_id: countryId
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = '/members';
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  });
+
+    document.getElementById('saveGangBtn').addEventListener('click', function() {
+    const newGangName = document.getElementById('newGangName').value;
+    const newGangDescription = document.getElementById('newGangDescription').value;
+
+    fetch('/create_gang', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ gang_name: newGangName, gang_description: newGangDescription })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const gangSelect = document.getElementById('gang_id');
+        const newOption = document.createElement('option');
+        newOption.value = data.gang_id;
+        newOption.text = newGangName;
+        gangSelect.appendChild(newOption);
+        gangSelect.value = data.gang_id;
+
+        $('#addGangModal').modal('hide');
+      } else {
+        alert('Error: ' + data.message);
+      }
+    });
+  });
+
+  document.getElementById('saveCountryBtn').addEventListener('click', function() {
+    const newCountryName = document.getElementById('newCountryName').value;
+
+    fetch('/create_country', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ country_name: newCountryName })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const countrySelect = document.getElementById('country_id');
+        const newOption = document.createElement('option');
+        newOption.value = data.country_id;
+        newOption.text = newCountryName;
+        countrySelect.appendChild(newOption);
+        countrySelect.value = data.country_id;
+
+        $('#addCountryModal').modal('hide');
+      } else {
+        alert('Error: ' + data.message);
+      }
+    });
+  });
+</script>
+
+
+{%endblock%}
+
+
+

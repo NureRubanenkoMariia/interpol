@@ -1,0 +1,116 @@
+{%extends 'base.html'%}
+
+{% block title %}
+Gang
+{%endblock%}
+
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="text-center text-primary">{{ gang.gang_name }}</h1>
+    <p>{{ gang.gang_description }}</p>
+
+    <h2 class="mt-4">Members of {{ gang.gang_name }}</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="thead-light">
+            <tr>
+                <th>Member Name</th>
+                <th>Alias</th>
+                <th>Threat Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+            <tr>
+                <td>{{ member.first_name }} {{ member.last_name }}</td>
+                <td>{{ member.alias }}</td>
+                <td>{{ member.threat_level }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="mt-4 d-flex justify-content-end">
+        <button type="button" id="updateBtn" class="btn btn-primary me-2" data-toggle="modal" data-target="#updateGangModal">Update</button>
+        <button type="button" id="deleteBtn" class="btn btn-danger">Delete</button>
+    </div>
+</div>
+
+<div class="modal fade" id="updateGangModal" tabindex="-1" role="dialog" aria-labelledby="updateGangModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateGangModalLabel">Edit Gang</h5>
+            </div>
+            <div class="modal-body">
+                <form id="updateGangForm">
+                    <div class="form-group">
+                        <label for="gang_name">Gang Name</label>
+                        <input type="text" id="gang_name" class="form-control" value="{{ gang.gang_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gang_description">Description</label>
+                        <textarea id="gang_description" class="form-control" required>{{ gang.gang_description }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('deleteBtn').addEventListener('click', function(event) {
+    fetch('/gang/delete/{{ gang.gang_id }}', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '/gangs';
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+document.getElementById('updateGangForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const gangName = document.getElementById('gang_name').value;
+    const gangDescription = document.getElementById('gang_description').value;
+
+    fetch(`/gang/update/{{ gang.gang_id }}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            gang_name: gangName,
+            gang_description: gangDescription,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelector('h1').textContent = gangName;
+            document.querySelector('p').textContent = gangDescription;
+            $('#updateGangModal').modal('hide');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,50 @@
+{%extends 'base.html'%}
+
+{% block title %}
+Add member
+{%endblock%}
+
+{% block body %}
+
+<body>
+    <div class="container mt-5">
+        <h1>Statistics</h1>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" onclick="showTab('topGangs')">Top 5 Gangs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showTab('topCountries')">Top 5 Countries</a>
+            </li>
+        </ul>
+
+        <div id="topGangs" class="tab-content mt-3">
+            <h2>Top 5 Gangs</h2>
+            <ul class="list-group">
+                {% for gang in top_gangs %}
+                    <li class="list-group-item">{{ gang.gang_name }} - {{ gang.members|length }} members</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div id="topCountries" class="tab-content mt-3" style="display: none;">
+            <h2>Top 5 Countries</h2>
+            <ul class="list-group">
+                {% for country in top_countries %}
+                    <li class="list-group-item">{{ country.country_name }} - {{ country.members|length }} wanted members</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+
+<script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.getElementById(tabName).style.display = 'block';
+        }
+    </script>
+
+{%endblock%}

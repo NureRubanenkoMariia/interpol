@@ -1,0 +1,27 @@
+{%extends 'base.html'%}
+
+{% block title %}
+Gangs
+{%endblock%}
+
+{% block body %}
+<div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+    {% for gang in gangs %}
+    <div class="col">
+        <div class="card mb-4 rounded-3 shadow-sm">
+          <div class="card-header py-3">
+            <h4 class="my-0 fw-normal">Gang ID: {{ gang.gang_id }}</h4>
+          </div>
+          <div class="card-body">
+            <h1 class="card-title pricing-card-title">{{ gang.gang_name }}</h1>
+            <ul class="list-unstyled mt-3 mb-4">
+              <li>Description: {{ gang.gang_description }}</li>
+            </ul>
+            <a href="/gang_detail/{{ gang.gang_id }}" class="w-100 btn btn-lg btn-outline-primary">View Details</a>
+          </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
