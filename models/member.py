@@ -2,6 +2,9 @@ from sqlalchemy import Column, Integer, String, Date, ForeignKey, Computed
 from error_handler import ErrorHandler
 from marshmallow import Schema, fields, validate, ValidationError
 from request.member_request import MemberSchema
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from flask import jsonify
 
 from app import db
 
@@ -66,6 +69,7 @@ class Member(db.Model):
             db.session.commit()
             return {'success': True, 'message': 'Member deleted successfully'}, 200
         except Exception as e:
+            db.session.rollback()
             return ErrorHandler.handle_error(str(e))
 
     @staticmethod
@@ -94,6 +98,63 @@ class Member(db.Model):
         except Exception as e:
             return ErrorHandler.handle_error(str(e))
 
+    @staticmethod
+    def count_criminals_in_gang(gang_name, min_search_count):
+        try:
+            query = text("SELECT * FROM dbo.CountCriminalsInGang(:gang_name, :min_search_count)")
+            result = db.session.execute(query,
+                                        {'gang_name': gang_name, 'min_search_count': min_search_count}).fetchall()
+
+            if result:
+                criminals = [{'member_name': row.member_name, 'search_count': row.search_count} for row in result]
+                return jsonify({"criminals": criminals})
+            else:
+                return jsonify({"message": "No data found"})
+
+        except Exception as e:
+            return ErrorHandler.handle_error(str(e))
+
+    @staticmethod
+    def get_total_search_records(member_id):
+        try:
+            query = text("SELECT dbo.GetTotalSearchRecords(:member_id) AS total_count")
+            result = db.session.execute(query, {'member_id': member_id}).scalar()
+            return jsonify({"total_count": result})
+
+        except Exception as e:
+            return ErrorHandler.handle_error(str(e))
+
+
+    @staticmethod
+    def update_and_get_gang_members(gang_name):
+        try:
+            update_query = text("EXEC UpdateCriminalsThreatLevelDescription :gang_name")
+            db.session.execute(update_query, {'gang_name': gang_name})
+            db.session.commit()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            error = str(e.__dict__['orig'])
+            if '50001' in error:
+                return jsonify({"members": [], "error": "Інформація відсутня для вказаної банди"}), 404
+            return jsonify({"members": [], "error": "Помилка під час оновлення даних"}), 500
+
+        query = """
+            SELECT first_name, threat_level, sings_description
+            FROM gang
+            JOIN member ON member.gang_id = gang.gang_id
+            JOIN personal_sings ON member.member_id = personal_sings.member_id
+            WHERE gang_name = :gang_name
+            ORDER BY threat_level DESC
+        """
+        members = db.session.execute(text(query), {'gang_name': gang_name}).fetchall()
+        members_data = [
+            {
+                "first_name": row.first_name,
+                "threat_level": row.threat_level,
+                "sings_description": row.sings_description
+            } for row in members
+        ]
+        return jsonify({"members": members_data})
 
     @staticmethod
     def validation(data):

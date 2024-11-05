@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Count criminals
+{% endblock %}
+
+{% block body %}
+
+<div class="container mt-5">
+    <h1 class="text-center">Count Criminals in Gang</h1>
+
+    <form id="countCriminalsForm">
+        <div class="form-group">
+            <label for="gangSelect">Select Gang</label>
+            <select id="gangSelect" class="form-control" required>
+                <option value="">Choose a gang</option>
+                {% for gang in gangs %}
+                <option value="{{ gang.gang_name }}">{{ gang.gang_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="minSearchCount">Minimum Search Count</label>
+            <input type="number" id="minSearchCount" class="form-control" min="0" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <div id="result" class="mt-4">
+        <table class="table table-striped" id="criminalsTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Member Name</th>
+                    <th>Search Count</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div id="noDataMessage" style="display:none;" class="alert alert-warning" role="alert">
+            No data found.
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('countCriminalsForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const gangName = document.getElementById('gangSelect').value;
+    const minSearchCount = document.getElementById('minSearchCount').value;
+
+    fetch('/count_criminals', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            gang_name: gangName,
+            min_search_count: minSearchCount
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const resultDiv = document.getElementById('result');
+        const tableBody = document.querySelector('#criminalsTable tbody');
+        const criminalsTable = document.getElementById('criminalsTable');
+        const noDataMessage = document.getElementById('noDataMessage');
+
+        tableBody.innerHTML = '';
+        criminalsTable.style.display = 'none';
+        noDataMessage.style.display = 'none';
+
+        if (data.criminals && data.criminals.length > 0) {
+            data.criminals.forEach(criminal => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${criminal.member_name}</td><td>${criminal.search_count}</td>`;
+                tableBody.appendChild(row);
+            });
+            criminalsTable.style.display = 'table';
+        } else {
+            noDataMessage.style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const noDataMessage = document.getElementById('noDataMessage');
+        noDataMessage.style.display = 'block';
+        noDataMessage.textContent = 'An error occurred while fetching data.';
+    });
+});
+</script>
+{% endblock %}

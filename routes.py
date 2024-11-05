@@ -115,3 +115,36 @@ def init_routes(app, db):
         top_countries = Country.get_top_countries()
 
         return render_template("statistic.html", top_gangs=top_gangs, top_countries=top_countries)
+
+    @app.route('/count_criminals', methods=['GET', 'POST'])
+    def count_criminals():
+        gangs = Gang.index()
+        if request.method == 'POST':
+            data = request.get_json()
+            gang_name = data.get('gang_name')
+            min_search_count = data.get('min_search_count')
+            return Member.count_criminals_in_gang(gang_name, min_search_count)
+        else:
+            return render_template('count_criminals.html', gangs=gangs)
+
+
+    @app.route('/total_search_records', methods=['GET', 'POST'])
+    def total_search_records():
+        members = Member.index()
+        if request.method == 'POST':
+            member_id = request.form.get('member_id')
+            return Member.get_total_search_records(member_id)
+
+        return render_template('total_search.html', members=members)
+
+
+    @app.route('/gang_info', methods=['GET', 'POST'])
+    def gang_info():
+        if request.method == 'POST':
+            data = request.get_json()
+            gang_name = data.get('gang_name')
+            return Member.update_and_get_gang_members(gang_name)
+        else:
+            gangs = Gang.index()
+            return render_template('gang_info.html', gangs=gangs)
+

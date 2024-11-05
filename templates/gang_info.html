@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Gang Info
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="text-center">Gang Information</h1>
+
+    <form id="gangForm">
+        <div class="form-group">
+            <label for="gangName">Select Gang</label>
+<select id="gangName" name="gang_name" class="form-control" required>
+    <option value="">Choose a gang</option>
+    {% for gang in gangs %}
+    <option value="{{ gang.gang_name }}">{{ gang.gang_name }}</option>
+    {% endfor %}
+</select>
+
+        </div>
+        <button type="submit" class="btn btn-primary">Get Members Info</button>
+    </form>
+
+    <div id="error" class="alert alert-danger mt-4" style="display: none;"></div>
+
+    <div id="resultTable" class="mt-4" style="display: none;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Threat Level</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody id="membersTableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.getElementById("gangForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const gangName = document.getElementById("gangName").value;
+    const errorDiv = document.getElementById("error");
+    const resultTable = document.getElementById("resultTable");
+    const membersTableBody = document.getElementById("membersTableBody");
+
+    errorDiv.style.display = "none";
+    resultTable.style.display = "none";
+    membersTableBody.innerHTML = "";
+
+    try {
+        const response = await fetch("/gang_info", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ gang_name: gangName })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            resultTable.style.display = "block";
+
+            data.members.forEach(member => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${member.first_name}</td>
+                    <td>${member.threat_level}</td>
+                    <td>${member.sings_description}</td>
+                `;
+                membersTableBody.appendChild(row);
+            });
+        } else {
+            errorDiv.style.display = "block";
+            errorDiv.textContent = data.error || "Unexpected error occurred.";
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        errorDiv.style.display = "block";
+        errorDiv.textContent = "An error occurred while fetching data.";
+    }
+});
+
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Total search
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="text-center">Get Total Search Records</h1>
+
+    <form id="totalSearchRecordsForm">
+        <div class="form-group">
+            <label for="memberSelect">Select Member</label>
+            <select id="memberSelect" name="member_id" class="form-control" required>
+                <option value="">Choose a member</option>
+                {% for member in members %}
+                <option value="{{ member.member_id }}">{{ member.first_name }} {{ member.last_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Number of search</button>
+    </form>
+
+    <div id="result" class="mt-4" style="display: none;">
+        <h4>Total Search Records: <span id="totalCount">0</span></h4>
+    </div>
+</div>
+
+<script>
+document.getElementById('totalSearchRecordsForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const memberId = document.getElementById('memberSelect').value;
+
+    fetch('/total_search_records', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            'member_id': memberId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('totalCount').textContent = data.total_count || 0;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+</script>
+
+{% endblock %}
